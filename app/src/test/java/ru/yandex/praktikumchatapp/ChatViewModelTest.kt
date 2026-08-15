@@ -1,5 +1,9 @@
+import junit.framework.TestCase.assertEquals
+import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -32,14 +36,26 @@ class ChatViewModelTest {
     @Test
     fun `send message should update state with MyMessage`() = runTest {
         val message = Message.MyMessage("TestMessage")
-
-        // TODO Задание 5: допишите юнит-тест
+        viewModel.sendMyMessage(message.text)
+        with(viewModel.state.value) {
+            assertTrue(messages.isNotEmpty())
+            assertTrue(messages.first() == message)
+        }
     }
 
     @Test
     fun testReceiveMessage_concurrentMessages() = runTest {
         val messagesToSend = (1..100).map { Message.MyMessage("Message $it") }
-
-        // TODO Задание 6: допишите юнит-тест
+        val jobs = messagesToSend.map { text ->
+            launch {
+                viewModel.sendMyMessage(text.text)
+            }
+        }
+        jobs.joinAll()
+        with(viewModel.state.value) {
+            assertTrue(messages.size == 100)
+            val actualTexts = messages.map { (it as Message.MyMessage) }
+            assertEquals(messagesToSend, actualTexts)
+        }
     }
 }
