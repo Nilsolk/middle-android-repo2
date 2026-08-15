@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.isActive
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.milliseconds
 
 class ChatApi {
 
@@ -88,10 +89,10 @@ class ChatApi {
 
     fun getReply(): Flow<String> = flow {
         while (currentCoroutineContext().isActive) {
-            delay(Random.nextLong(MAXIMUM_RESPONSE_DELAY))
-//        if (Random.nextBoolean()) {
-//            throw Exception("Ошибка запроса", Throwable("Something went wrong")) // TODO Задание 2: раскоментируйте для проверки обработки ошилбок
-//        }
+            delay(Random.nextLong(MAXIMUM_RESPONSE_DELAY).milliseconds)
+        if (Random.nextBoolean()) {
+            throw Exception("Ошибка запроса", Throwable("Something went wrong"))
+        }
             emit(responses.random())
         }
     }
